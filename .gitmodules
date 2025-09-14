@@ -1,0 +1,3 @@
+[submodule "8086_Users_Manual"]
+	path = 8086_Users_Manual
+	url = ssh://git@codeberg.org/bolt/8086-Users-Manual.git
