@@ -25,6 +25,7 @@
             (aspellWithDicts (ps: with ps; [ en ]))
             # keep-sorted start
             nushell
+            zig_0_15
             # keep-sorted end
           ];
         };
