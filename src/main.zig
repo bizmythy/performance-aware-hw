@@ -15,6 +15,21 @@ pub fn main() !void {
     try readInstructions(part_1, "listing_0038_many_register_mov");
 }
 
+const Mov = packed struct {
+    low2: u2,
+    instruction: u6,
+
+    fn getIfMatch(instruction: u8) ?Mov {
+        const maybe_mov: Mov = @bitCast(instruction);
+        print("Instruction: {b}\n", .{maybe_mov.instruction});
+        const match: u6 = 0b100010;
+        if (maybe_mov.instruction == match) {
+            return maybe_mov;
+        }
+        return null;
+    }
+};
+
 fn readInstructions(dir: fs.Dir, exe: []const u8) !void {
     print("Reading instructions from {s}\n", .{exe});
     const exe_file = try dir.openFile(exe, .{ .mode = .read_only });
@@ -33,6 +48,8 @@ fn readInstructions(dir: fs.Dir, exe: []const u8) !void {
         };
         print("byte read: {b}\n", .{byte});
 
-        // interpret byte
+        if (Mov.getIfMatch(byte)) |mov| {
+            print("MOV instruction found: {d}\n", .{mov.low2});
+        }
     }
 }
