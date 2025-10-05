@@ -3,6 +3,9 @@
   "languages": {
     "Nu": {
       "tab_size": 4
+    },
+    "Zig": {
+      "tab_size": 4
     }
   }
 }
