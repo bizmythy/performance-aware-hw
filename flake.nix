@@ -24,6 +24,7 @@
           buildInputs = with pkgs; [
             (aspellWithDicts (ps: with ps; [ en ]))
             # keep-sorted start
+            nasm
             nushell
             zig_0_15
             # keep-sorted end
