@@ -15,19 +15,58 @@ pub fn main() !void {
     try readInstructions(part_1, "listing_0038_many_register_mov");
 }
 
+const Register = enum(u8) {
+    al,
+    cl,
+    dl,
+    bl,
+    ah,
+    ch,
+    dh,
+    bh,
+    ax,
+    cx,
+    dx,
+    bx,
+    sp,
+    bp,
+    si,
+    di,
+
+    const map: [8][2]Register = .{
+        .{ .al, .ax },
+        .{ .cl, .cx },
+        .{ .dl, .dx },
+        .{ .bl, .bx },
+        .{ .ah, .sp },
+        .{ .ch, .bp },
+        .{ .dh, .si },
+        .{ .bh, .di },
+    };
+    fn get(reg: u3, w: u1) Register {
+        return Register.map[reg][w];
+    }
+};
+
 const Mov = packed struct {
-    low2: u2,
+    w: u1,
+    d: u1,
     instruction: u6,
 
     fn getIfMatch(instruction: u8) ?Mov {
         const maybe_mov: Mov = @bitCast(instruction);
-        print("Instruction: {b}\n", .{maybe_mov.instruction});
         const match: u6 = 0b100010;
         if (maybe_mov.instruction == match) {
             return maybe_mov;
         }
         return null;
     }
+};
+
+const Mov2 = packed struct {
+    r_w: u3,
+    reg: u3,
+    mod: u2,
 };
 
 fn readInstructions(dir: fs.Dir, exe: []const u8) !void {
@@ -46,10 +85,19 @@ fn readInstructions(dir: fs.Dir, exe: []const u8) !void {
                 etype.ReadFailed => return err,
             }
         };
-        print("byte read: {b}\n", .{byte});
+        print("instruction read: {b}\n", .{byte});
 
         if (Mov.getIfMatch(byte)) |mov| {
-            print("MOV instruction found: {d}\n", .{mov.low2});
+            print("MOV instruction found: {b} {b}\n", .{ mov.d, mov.w });
+
+            const mov2_byte = try reader.interface.takeByte();
+            const mov2: Mov2 = @bitCast(mov2_byte);
+            print("MOV args found: {b} {b} {b}\n", .{ mov2.r_w, mov2.reg, mov2.mod });
+
+            const register_r_w = Register.get(mov2.r_w, mov.w);
+            const register_reg = Register.get(mov2.reg, mov.w);
+            const registers = if (mov.d == 1) .{ register_reg, register_r_w } else .{ register_r_w, register_reg };
+            print("mov {t}, {t}\n", .{ registers[0], registers[1] });
         }
     }
 }
